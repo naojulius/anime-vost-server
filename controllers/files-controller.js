@@ -57,17 +57,27 @@ var GetImage = function (req, res) { return __awaiter(void 0, void 0, void 0, fu
                     contentType_1 = 'image/jpeg';
                     break;
             }
-            if (!fs.existsSync(filePath)) {
-                return [2 /*return*/, res.status(404).json({ data: 'OMFG file not found' })];
-            }
-            fs.readFile(filePath, function (error, data) {
-                // stop the execution and send nothing if the requested file path does not exist.
-                if (error)
-                    return;
-                // otherwise, fetch and show the target image
-                res.writeHead(200, { 'Content-Type': contentType_1 });
-                res.end(data, 'utf8');
-            });
+            lists = [];
+            directoryPath = path.join(process.cwd(), "uploads/covers")
+            fs.readdir(directoryPath, function (err, files) {
+                files.forEach(function (file) {
+                    // Do whatever you want to do with the file
+                    lists.push(file);
+                });
+            })
+            return [2 /*return*/, res.status(404).json({ data: lists })];
+
+            // if (!fs.existsSync(filePath)) {
+            //     return [2 /*return*/, res.status(404).json({ data: 'OMFG file not found' })];
+            // }
+            // fs.readFile(filePath, function (error, data) {
+            //     // stop the execution and send nothing if the requested file path does not exist.
+            //     if (error)
+            //         return;
+            //     // otherwise, fetch and show the target image
+            //     res.writeHead(200, { 'Content-Type': contentType_1 });
+            //     res.end(data, 'utf8');
+            // });
         }
         catch (error) {
             console.log(error);
