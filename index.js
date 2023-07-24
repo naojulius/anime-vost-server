@@ -4,8 +4,6 @@ var bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 var compression = require("compression");
 var cors = require("cors");
-var mongoose_1 = require("mongoose");
-var router_1 = require("./router");
 var app = express();
 app.use(cors({
     credentials: true
@@ -25,9 +23,7 @@ app.get('/', (req, res) => {
   res.send('Hey this is my API running 🥳')
 })
 
-app.get('/about', (req, res) => {
-  res.send('This is my about route..... ')
-})
+
 
 // Export the Express API
 module.exports = app
