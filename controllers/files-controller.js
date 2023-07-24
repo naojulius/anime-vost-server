@@ -43,7 +43,7 @@ var GetImage = function (req, res) { return __awaiter(void 0, void 0, void 0, fu
     var filePath, contentType_1, mimeType;
     return __generator(this, function (_a) {
         try {
-            filePath = 'uploads/' + req.params.type + '/' + req.params.name;
+            filePath = process.cwd() +'/uploads/' + req.params.type + '/' + req.params.name;
             contentType_1 = 'text/html';
             mimeType = path.extname(filePath);
             switch (mimeType) {
@@ -57,18 +57,17 @@ var GetImage = function (req, res) { return __awaiter(void 0, void 0, void 0, fu
                     contentType_1 = 'image/jpeg';
                     break;
             }
-            return [2 /*return*/, res.status(404).json({ data: 'OMFG file not found __' + ' : '+ process.cwd() })];
-            // if (!fs.existsSync(filePath)) {
-            //     return [2 /*return*/, res.status(404).json({ data: 'OMFG file not found' })];
-            // }
-            // fs.readFile(filePath, function (error, data) {
-            //     // stop the execution and send nothing if the requested file path does not exist.
-            //     if (error)
-            //         return;
-            //     // otherwise, fetch and show the target image
-            //     res.writeHead(200, { 'Content-Type': contentType_1 });
-            //     res.end(data, 'utf8');
-            // });
+            if (!fs.existsSync(filePath)) {
+                return [2 /*return*/, res.status(404).json({ data: 'OMFG file not found' })];
+            }
+            fs.readFile(filePath, function (error, data) {
+                // stop the execution and send nothing if the requested file path does not exist.
+                if (error)
+                    return;
+                // otherwise, fetch and show the target image
+                res.writeHead(200, { 'Content-Type': contentType_1 });
+                res.end(data, 'utf8');
+            });
         }
         catch (error) {
             console.log(error);
