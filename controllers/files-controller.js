@@ -43,7 +43,7 @@ var GetImage = function (req, res) { return __awaiter(void 0, void 0, void 0, fu
     var filePath, contentType_1, mimeType;
     return __generator(this, function (_a) {
         try {
-            filePath = './uploads/' + req.params.type + '/' + req.params.name;
+            filePath = 'uploads/' + req.params.type + '/' + req.params.name;
             contentType_1 = 'text/html';
             mimeType = path.extname(filePath);
             switch (mimeType) {
