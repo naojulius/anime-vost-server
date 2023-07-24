@@ -1,5 +1,18 @@
-// index.js
 var express = require("express");
+var http = require("http");
+var bodyParser = require("body-parser");
+var cookieParser = require("cookie-parser");
+var compression = require("compression");
+var cors = require("cors");
+var mongoose_1 = require("mongoose");
+var router_1 = require("./router");
+var app = express();
+app.use(cors({
+    credentials: true
+}));
+app.use(compression());
+app.use(cookieParser());
+app.use(bodyParser.json({ limit: '300mb' }));
 
 const app = express()
 const PORT = 4000
