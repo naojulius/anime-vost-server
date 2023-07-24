@@ -57,7 +57,7 @@ var GetImage = function (req, res) { return __awaiter(void 0, void 0, void 0, fu
                     contentType_1 = 'image/jpeg';
                     break;
             }
-            return [2 /*return*/, res.status(404).json({ data: 'OMFG file not found __' })];
+            return [2 /*return*/, res.status(404).json({ data: 'OMFG file not found __' + ' : '+ filePath })];
             // if (!fs.existsSync(filePath)) {
             //     return [2 /*return*/, res.status(404).json({ data: 'OMFG file not found' })];
             // }
