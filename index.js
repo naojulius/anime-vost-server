@@ -46,7 +46,9 @@ var mongoose_1 = require("mongoose");
 var router_1 = require("./router");
 var app = express();
 app.use(cors({
-    credentials: true
+    credentials: true,
+    optionsSuccessStatus: 200, // For legacy browser support
+    methods: "GET, PUT, POST, OPTIONS"
 }));
 app.use(compression());
 app.use(cookieParser());
