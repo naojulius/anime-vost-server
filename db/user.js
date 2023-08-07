@@ -1,14 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserById = exports.deleteUserById = exports.createUser = exports.getUserById = exports.getUSerBySessionToken = exports.getUserByEmail = exports.getUsers = exports.User = void 0;
+exports.getTotalRowsNumber = exports.getUsersTable = exports.updateUserById = exports.deleteUserById = exports.createUser = exports.getUserById = exports.getUSerBySessionToken = exports.getUserByEmail = exports.getUsers = exports.User = void 0;
 var mongoose_1 = require("mongoose");
+var roleSchema = new mongoose_1.Schema({ any: [] });
 var userSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     surname: { type: String, required: true },
     email: { type: String, required: true },
     address: { type: String, required: true },
     birthDate: { type: Date, required: true },
+    createDate: { type: Date, required: false, default: Date.now() },
     gender: { type: String, required: true },
+    disabled: { type: Boolean, default: false },
+    roles: { type: [String], required: false, default: ['USER'] },
     authentication: {
         password: { type: String, required: true },
         salt: { type: String, required: false },
@@ -32,3 +36,7 @@ var deleteUserById = function (id) { return exports.User.findOneAndDelete({ _id:
 exports.deleteUserById = deleteUserById;
 var updateUserById = function (id, values) { return exports.User.findByIdAndUpdate(id, values); };
 exports.updateUserById = updateUserById;
+var getUsersTable = function (resultsPerPage, page) { return exports.User.find().select("-authentication").limit(resultsPerPage).skip(resultsPerPage * page); };
+exports.getUsersTable = getUsersTable;
+var getTotalRowsNumber = function () { return exports.User.count(); };
+exports.getTotalRowsNumber = getTotalRowsNumber;

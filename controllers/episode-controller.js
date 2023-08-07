@@ -37,36 +37,41 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GetSeason = exports.NewEpisode = void 0;
-var path = require("path");
-var guid = require("uuid-by-string");
 var anime_episode_1 = require("../db/anime-episode");
+var helpers_1 = require("../helpers");
+var environment_1 = require("../environments/environment");
 var NewEpisode = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _file, _a, video, owner, season, episode, _episode, error_1;
+    var _a, video, owner, season, episode, result, _episode, error_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 2, , 3]);
-                _file = guid(req.files[0].originalname).replace(/-/g, "") + path.extname(req.files[0].originalname);
+                _b.trys.push([0, 3, , 4]);
                 _a = req.body, video = _a.video, owner = _a.owner, season = _a.season, episode = _a.episode;
-                video = _file;
                 if (!owner || !season || !episode) {
                     return [2 /*return*/, res.sendStatus(400)];
                 }
+                return [4 /*yield*/, (0, helpers_1.driveUpload)(req.files[0], environment_1.environment.episode_path)];
+            case 1:
+                result = _b.sent();
+                if (!result["id"]) {
+                    return [2 /*return*/, res.sendStatus(400)];
+                }
+                video = result['id'];
                 return [4 /*yield*/, (0, anime_episode_1.newEpisode)({
                         owner: owner,
                         episode: episode,
                         season: season,
                         video: video
                     })];
-            case 1:
-                _episode = _b.sent();
-                //  await updateAnimeById(owner, {"trailer": trailer._id});
-                return [2 /*return*/, res.status(200).json(_episode).end()];
             case 2:
+                _episode = _b.sent();
+                // await updateAnimeById(owner, {"trailer": _episode._id});
+                return [2 /*return*/, res.status(200).json(_episode).end()];
+            case 3:
                 error_1 = _b.sent();
                 console.log(error_1);
                 return [2 /*return*/, res.sendStatus(400)];
-            case 3: return [2 /*return*/];
+            case 4: return [2 /*return*/];
         }
     });
 }); };

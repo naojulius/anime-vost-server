@@ -37,37 +37,42 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GetTrailerById = exports.NewTrailer = void 0;
-var path = require("path");
-var guid = require("uuid-by-string");
 var trailers_1 = require("../db/trailers");
 var anime_1 = require("../db/anime");
+var helpers_1 = require("../helpers");
+var environment_1 = require("../environments/environment");
 var NewTrailer = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _file, _a, video, owner, trailer, error_1;
+    var _a, video, owner, result, trailer, error_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 3, , 4]);
-                _file = guid(req.files[0].originalname).replace(/-/g, "") + path.extname(req.files[0].originalname);
+                _b.trys.push([0, 4, , 5]);
                 _a = req.body, video = _a.video, owner = _a.owner;
-                video = _file;
-                if (!video || !owner) {
+                if (!owner) {
                     return [2 /*return*/, res.sendStatus(400)];
                 }
+                return [4 /*yield*/, (0, helpers_1.driveUpload)(req.files[0], environment_1.environment.trailer_path)];
+            case 1:
+                result = _b.sent();
+                if (!result["id"]) {
+                    return [2 /*return*/, res.sendStatus(400)];
+                }
+                video = result["id"];
                 return [4 /*yield*/, (0, trailers_1.newTrailer)({
                         video: video,
                         owner: owner,
                     })];
-            case 1:
+            case 2:
                 trailer = _b.sent();
                 return [4 /*yield*/, (0, anime_1.updateAnimeById)(owner, { "trailer": trailer._id })];
-            case 2:
+            case 3:
                 _b.sent();
                 return [2 /*return*/, res.status(200).json(trailer).end()];
-            case 3:
+            case 4:
                 error_1 = _b.sent();
                 console.log(error_1);
                 return [2 /*return*/, res.sendStatus(400)];
-            case 4: return [2 /*return*/];
+            case 5: return [2 /*return*/];
         }
     });
 }); };

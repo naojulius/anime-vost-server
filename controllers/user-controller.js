@@ -36,15 +36,16 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateUser = exports.DeleteUser = exports.GetAllUsers = exports.Login = exports.Register = void 0;
+exports.GeCookie = exports.UpdateUser = exports.DeleteUser = exports.Table = exports.GetAllUsers = exports.Login = exports.Register = void 0;
 var user_1 = require("../db/user");
 var helpers_1 = require("../helpers");
+var data_table_1 = require("../@core/data-table");
 var Register = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name_1, surname, email, password, address, birthDate, gender, existingUser, salt, user, error_1;
+    var _a, name_1, surname, email, password, address, birthDate, gender, existingUser, salt, user, token, error_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 3, , 4]);
+                _b.trys.push([0, 4, , 5]);
                 _a = req.body, name_1 = _a.name, surname = _a.surname, email = _a.email, password = _a.password, address = _a.address, birthDate = _a.birthDate, gender = _a.gender;
                 if (!name_1 || !surname || !email || !password || !address || !birthDate || !gender) {
                     return [2 /*return*/, res.sendStatus(400)];
@@ -70,18 +71,26 @@ var Register = function (req, res) { return __awaiter(void 0, void 0, void 0, fu
                     })];
             case 2:
                 user = _b.sent();
-                return [2 /*return*/, res.status(200).json(user).end()];
+                return [4 /*yield*/, (0, helpers_1.generateJWTToken)({
+                        "_id": user._id,
+                        "name": user.name,
+                        "surname": user.surname,
+                        "roles": user.roles
+                    })];
             case 3:
+                token = _b.sent();
+                return [2 /*return*/, res.status(200).json(token).end()];
+            case 4:
                 error_1 = _b.sent();
                 console.log(error_1);
                 return [2 /*return*/, res.sendStatus(400)];
-            case 4: return [2 /*return*/];
+            case 5: return [2 /*return*/];
         }
     });
 }); };
 exports.Register = Register;
 var Login = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, email, password, user, expectedHash, salt, error_2;
+    var _a, email, password, user, expectedHash, token, error_2;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -96,18 +105,26 @@ var Login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 if (!user) {
                     return [2 /*return*/, res.sendStatus(400)];
                 }
+                if (user.disabled) {
+                    return [2 /*return*/, res.sendStatus(403)];
+                }
                 expectedHash = (0, helpers_1.authentication)(user.authentication.salt, password);
                 if (user.authentication.password != expectedHash) {
                     return [2 /*return*/, res.sendStatus(403)];
                 }
-                salt = (0, helpers_1.random)();
-                user.authentication.sessionToken = (0, helpers_1.authentication)(salt, user._id.toString());
-                return [4 /*yield*/, user.save()];
+                return [4 /*yield*/, (0, helpers_1.generateJWTToken)({
+                        "_id": user._id,
+                        "name": user.name,
+                        "surname": user.surname,
+                        "roles": user.roles
+                    })];
             case 2:
-                _b.sent();
-                res.cookie("auth", user.authentication.sessionToken, { domain: 'localhost', path: '/', httpOnly: false, maxAge: 3600000,
-                    secure: true, });
-                return [2 /*return*/, res.status(200).json(user).end()];
+                token = _b.sent();
+                // const salt = random();
+                // user.authentication.sessionToken = authentication(salt, user._id.toString());
+                // await user.save();
+                // res.cookie("auth", user.authentication.sessionToken, {domain: 'localhost', path: '/', maxAge: 3600000, httpOnly:false }); 
+                return [2 /*return*/, res.status(200).json(token).end()];
             case 3:
                 error_2 = _b.sent();
                 console.log(error_2);
@@ -136,8 +153,33 @@ var GetAllUsers = function (req, res) { return __awaiter(void 0, void 0, void 0,
     });
 }); };
 exports.GetAllUsers = GetAllUsers;
+var Table = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, page, resultsPerPage, users, datatableResp, _b, _c, error_4;
+    return __generator(this, function (_d) {
+        switch (_d.label) {
+            case 0:
+                _d.trys.push([0, 3, , 4]);
+                _a = req.body, page = _a.page, resultsPerPage = _a.resultsPerPage;
+                return [4 /*yield*/, (0, user_1.getUsersTable)(resultsPerPage, page)];
+            case 1:
+                users = _d.sent();
+                _b = data_table_1.DataTableResp.bind;
+                _c = [void 0, users];
+                return [4 /*yield*/, (0, user_1.getTotalRowsNumber)()];
+            case 2:
+                datatableResp = new (_b.apply(data_table_1.DataTableResp, _c.concat([_d.sent(), users.length, (page + 1)])))();
+                return [2 /*return*/, res.status(200).json(datatableResp)];
+            case 3:
+                error_4 = _d.sent();
+                console.log(error_4);
+                return [2 /*return*/, res.sendStatus(400)];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); };
+exports.Table = Table;
 var DeleteUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, deletedUSer, error_4;
+    var id, deletedUSer, error_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -148,8 +190,8 @@ var DeleteUser = function (req, res) { return __awaiter(void 0, void 0, void 0, 
                 deletedUSer = _a.sent();
                 return [2 /*return*/, res.status(200).json(deletedUSer)];
             case 2:
-                error_4 = _a.sent();
-                console.log(error_4);
+                error_5 = _a.sent();
+                console.log(error_5);
                 return [2 /*return*/, res.sendStatus(400)];
             case 3: return [2 /*return*/];
         }
@@ -157,7 +199,7 @@ var DeleteUser = function (req, res) { return __awaiter(void 0, void 0, void 0, 
 }); };
 exports.DeleteUser = DeleteUser;
 var UpdateUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, surname, user, error_5;
+    var id, surname, user, error_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -176,11 +218,23 @@ var UpdateUser = function (req, res) { return __awaiter(void 0, void 0, void 0, 
                 _a.sent();
                 return [2 /*return*/, res.sendStatus(200).json(user).end()];
             case 3:
-                error_5 = _a.sent();
-                console.log(error_5);
+                error_6 = _a.sent();
+                console.log(error_6);
                 return [2 /*return*/, res.sendStatus(400)];
             case 4: return [2 /*return*/];
         }
     });
 }); };
 exports.UpdateUser = UpdateUser;
+var GeCookie = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        try {
+        }
+        catch (error) {
+            console.log(error);
+            return [2 /*return*/, res.sendStatus(400)];
+        }
+        return [2 /*return*/];
+    });
+}); };
+exports.GeCookie = GeCookie;

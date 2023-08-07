@@ -36,22 +36,36 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetTrends = exports.GetTrending = exports.GetAnimeById = exports.AllAnime = exports.NewAnime = void 0;
+exports.SearchAnime = exports.GetTrends = exports.GetTrending = exports.GetAnimeById = exports.AnimeTable = exports.AllAnime = exports.NewAnime = void 0;
 var path = require("path");
-var guid = require("uuid-by-string");
+var google = require("googleapis");
 var anime_1 = require("../db/anime");
+var environment_1 = require("../environments/environment");
+var helpers_1 = require("../helpers");
+var data_table_1 = require("../@core/data-table");
+var KEYFILEPATH = path.join(process.cwd(), environment_1.environment.drive_credential);
+var SCOPES = environment_1.environment.drive_scope;
+var auth = new google.Auth.GoogleAuth({
+    keyFile: KEYFILEPATH,
+    scopes: SCOPES,
+});
 var NewAnime = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _file, _a, title, synopsys, rating, cover, trending, category, trailer, anime, error_1;
+    var _a, title, synopsys, rating, cover, trending, category, trailer, result, anime, error_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 2, , 3]);
-                _file = guid(req.files[0].originalname).replace(/-/g, "") + path.extname(req.files[0].originalname);
+                _b.trys.push([0, 3, , 4]);
                 _a = req.body, title = _a.title, synopsys = _a.synopsys, rating = _a.rating, cover = _a.cover, trending = _a.trending, category = _a.category, trailer = _a.trailer;
                 if (!title || !synopsys || !rating || !category) {
                     return [2 /*return*/, res.sendStatus(400)];
                 }
-                cover = _file;
+                return [4 /*yield*/, (0, helpers_1.driveUpload)(req.files[0], environment_1.environment.covers_path)];
+            case 1:
+                result = _b.sent();
+                if (!result["id"]) {
+                    return [2 /*return*/, res.sendStatus(400)];
+                }
+                cover = result['id'];
                 return [4 /*yield*/, (0, anime_1.createAnime)({
                         cover: cover,
                         rating: rating,
@@ -61,14 +75,14 @@ var NewAnime = function (req, res) { return __awaiter(void 0, void 0, void 0, fu
                         trending: trending,
                         trailer: trailer,
                     })];
-            case 1:
+            case 2:
                 anime = _b.sent();
                 return [2 /*return*/, res.status(200).json(anime).end()];
-            case 2:
+            case 3:
                 error_1 = _b.sent();
                 console.log(error_1);
                 return [2 /*return*/, res.sendStatus(400)];
-            case 3: return [2 /*return*/];
+            case 4: return [2 /*return*/];
         }
     });
 }); };
@@ -92,46 +106,56 @@ var AllAnime = function (req, res) { return __awaiter(void 0, void 0, void 0, fu
     });
 }); };
 exports.AllAnime = AllAnime;
+var AnimeTable = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, page, resultsPerPage, users, datatableResp, _b, _c, error_3;
+    return __generator(this, function (_d) {
+        switch (_d.label) {
+            case 0:
+                _d.trys.push([0, 3, , 4]);
+                _a = req.body, page = _a.page, resultsPerPage = _a.resultsPerPage;
+                return [4 /*yield*/, (0, anime_1.getAnimeTable)(resultsPerPage, page)];
+            case 1:
+                users = _d.sent();
+                _b = data_table_1.DataTableResp.bind;
+                _c = [void 0, users];
+                return [4 /*yield*/, (0, anime_1.getTotalRowsNumber)()];
+            case 2:
+                datatableResp = new (_b.apply(data_table_1.DataTableResp, _c.concat([_d.sent(), users.length, (page + 1)])))();
+                return [2 /*return*/, res.status(200).json(datatableResp)];
+            case 3:
+                error_3 = _d.sent();
+                console.log(error_3);
+                return [2 /*return*/, res.sendStatus(400)];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); };
+exports.AnimeTable = AnimeTable;
 var GetAnimeById = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, anime, error_3;
+    var id, anime, animeSeasonNumber, error_4;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 2, , 3]);
+                _a.trys.push([0, 3, , 4]);
                 id = req.params.id;
                 return [4 /*yield*/, (0, anime_1.getAnimeById)(id)];
             case 1:
                 anime = _a.sent();
-                return [2 /*return*/, res.status(200).json(anime).end()];
+                return [4 /*yield*/, (0, anime_1.getAnimeSeasonNumber)({ owner: anime._id })];
             case 2:
-                error_3 = _a.sent();
-                console.log(error_3);
+                animeSeasonNumber = _a.sent();
+                anime.seasonNumber = animeSeasonNumber;
+                return [2 /*return*/, res.status(200).json(anime).end()];
+            case 3:
+                error_4 = _a.sent();
+                console.log(error_4);
                 return [2 /*return*/, res.sendStatus(400)];
-            case 3: return [2 /*return*/];
+            case 4: return [2 /*return*/];
         }
     });
 }); };
 exports.GetAnimeById = GetAnimeById;
 var GetTrending = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var anime, error_4;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, (0, anime_1.getTrending)()];
-            case 1:
-                anime = _a.sent();
-                return [2 /*return*/, res.status(200).json(anime).end()];
-            case 2:
-                error_4 = _a.sent();
-                console.log(error_4);
-                return [2 /*return*/, res.sendStatus(400)];
-            case 3: return [2 /*return*/];
-        }
-    });
-}); };
-exports.GetTrending = GetTrending;
-var GetTrends = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var anime, error_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -149,4 +173,43 @@ var GetTrends = function (req, res) { return __awaiter(void 0, void 0, void 0, f
         }
     });
 }); };
+exports.GetTrending = GetTrending;
+var GetTrends = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var anime, error_6;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, (0, anime_1.getTrending)()];
+            case 1:
+                anime = _a.sent();
+                return [2 /*return*/, res.status(200).json(anime).end()];
+            case 2:
+                error_6 = _a.sent();
+                console.log(error_6);
+                return [2 /*return*/, res.sendStatus(400)];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
 exports.GetTrends = GetTrends;
+var SearchAnime = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var key, anime, error_7;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                key = req.body.key;
+                return [4 /*yield*/, (0, anime_1.searchAnime)(key)];
+            case 1:
+                anime = _a.sent();
+                return [2 /*return*/, res.status(200).json(anime).end()];
+            case 2:
+                error_7 = _a.sent();
+                console.log(error_7);
+                return [2 /*return*/, res.sendStatus(400)];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.SearchAnime = SearchAnime;

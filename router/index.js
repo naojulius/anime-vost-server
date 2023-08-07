@@ -6,6 +6,7 @@ var trailer_router_1 = require("./trailer-router");
 var stream_router_1 = require("./stream-router");
 var episode_router_1 = require("./episode-router");
 var user_router_1 = require("./user-router");
+var favourite_router_1 = require("./favourite-router");
 var router = express.Router();
 exports.default = (function () {
     router.get("/", function (req, res) {
@@ -16,5 +17,6 @@ exports.default = (function () {
     (0, trailer_router_1.default)(router);
     (0, episode_router_1.default)(router);
     (0, user_router_1.default)(router);
+    (0, favourite_router_1.default)(router);
     return router;
 });
