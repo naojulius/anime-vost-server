@@ -47,9 +47,10 @@ var router_1 = require("./router");
 var app = express();
 app.use(cors({
     origin: '*',
-    methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH'],
+    methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
     credentials: true,
 }));
+app.use(cors());
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json({ limit: '300mb' }));
